@@ -26,10 +26,10 @@
 #import "FBAccessTokenData+Internal.h"
 #import "FBError.h"
 #import "FBUtility.h"
+#import "FBSettings.h"
 #import <objc/objc-runtime.h>
 
 static NSString *kURLSchemeSuffix = @"URLSuffix";
-static NSString *const FBDialogBaseURL = @"https://m." FB_BASE_URL @"/dialog/";
 
 // We test quite a few deprecated properties.
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -873,6 +873,8 @@ static NSString *const FBDialogBaseURL = @"https://m." FB_BASE_URL @"/dialog/";
     [[(id)mockSession reject] close];
     [[(id)mockSession reject] callReauthorizeHandlerAndClearState:[OCMArg any]];
     
+    [FBSettings setDefaultAppID:kTestAppId];
+    
     [session handleDidBecomeActive];
     
     assertThatInt(session.state, equalToInt(FBSessionStateCreated));
@@ -1334,7 +1336,7 @@ static NSString *const FBDialogBaseURL = @"https://m." FB_BASE_URL @"/dialog/";
     [self addFacebookCookieToSharedStorage];
     
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    NSURL *url = [NSURL URLWithString:FBDialogBaseURL];
+    NSURL *url = [NSURL URLWithString:[FBUtility buildFacebookUrlWithPre:@"https://m." withPost:@"/dialog/"]];
     NSArray *cookiesForFacebook = [storage cookiesForURL:url];
     
     assertThatInteger(cookiesForFacebook.count, greaterThan(@0));
@@ -1356,7 +1358,7 @@ static NSString *const FBDialogBaseURL = @"https://m." FB_BASE_URL @"/dialog/";
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     
     NSDictionary *cookieProperties = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      @"m." FB_BASE_URL, NSHTTPCookieDomain,
+                                      [FBUtility buildFacebookUrlWithPre:@"m."], NSHTTPCookieDomain,
                                       @"COOKIE!!!!", NSHTTPCookieName,
                                       @"/", NSHTTPCookiePath,
                                       @"hello", NSHTTPCookieValue,

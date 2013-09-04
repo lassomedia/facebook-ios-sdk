@@ -20,9 +20,12 @@
 #import "FBRequest.h"
 #import "FBSessionTokenCachingStrategy.h"
 #import "FBTestBlocker.h"
+#import "FBUtility.h"
 
 NSString *const kAuthenticationTestValidToken = @"AToken";
 NSString *const kAuthenticationTestAppId = @"AnAppid";
+
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 @interface FBSession (AuthenticationTesting)
 
@@ -48,6 +51,10 @@ NSString *const kAuthenticationTestAppId = @"AnAppid";
 
 @end
 
+@interface FBAuthenticationTests() {
+    id _mockFBUtility;
+}
+@end
 
 @implementation FBAuthenticationTests
 
@@ -61,6 +68,12 @@ NSString *const kAuthenticationTestAppId = @"AnAppid";
     FBSession.activeSession = nil;
 
     _blocker = [[FBTestBlocker alloc] initWithExpectedSignalCount:1];
+    
+    // Before every authentication test, set up a fake FBFetchedAppSettings
+    // to prevent fetching app settings during FBSession authorizeWithPermissions
+    _mockFBUtility = [[OCMockObject mockForClass:[FBUtility class]] retain];
+    FBFetchedAppSettings *dummyFBFetchedAppSettings = [[[FBFetchedAppSettings alloc] init] autorelease];
+    [[[_mockFBUtility stub] andReturn:dummyFBFetchedAppSettings] fetchedAppSettings];
 }
 
 - (void)tearDown {
@@ -68,6 +81,9 @@ NSString *const kAuthenticationTestAppId = @"AnAppid";
 
     [_blocker release];
     _blocker = nil;
+    
+    [_mockFBUtility release];
+    _mockFBUtility = nil;
 }
 
 - (void)mockSuccessRequestAccessToFacebookAccountStore:(NSArray *)permissions
