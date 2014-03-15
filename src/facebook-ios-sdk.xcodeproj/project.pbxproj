@@ -1941,6 +1941,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				COPY_PHASE_STRIP = NO;
 				DSTROOT = /tmp/facebook_ios_sdk.dst;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -1949,6 +1950,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = facebook_ios_sdk_Prefix.pch;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = facebook_ios_sdk;
@@ -1963,6 +1965,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DSTROOT = /tmp/facebook_ios_sdk.dst;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -1970,6 +1973,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = facebook_ios_sdk_Prefix.pch;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
 				PRODUCT_NAME = facebook_ios_sdk;
 				PUBLIC_HEADERS_FOLDER_PATH = "$(TARGET_NAME)";
@@ -2101,6 +2105,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DSTROOT = /tmp/facebook_ios_sdk.dst;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -2108,6 +2113,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = facebook_ios_sdk_Prefix.pch;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
 				PRODUCT_NAME = facebook_ios_sdk;
 				PUBLIC_HEADERS_FOLDER_PATH = "$(TARGET_NAME)";
@@ -2200,6 +2206,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				COPY_PHASE_STRIP = NO;
 				DSTROOT = /tmp/facebook_ios_sdk.dst;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -2208,6 +2215,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = facebook_ios_sdk_Prefix.pch;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
 				PRODUCT_NAME = facebook_ios_sdk;
 				PUBLIC_HEADERS_FOLDER_PATH = "$(TARGET_NAME)";
