@@ -20,13 +20,16 @@
 #import <OCHamcrestIOS/HCWrapInMatcher.h>
 
 @implementation FBIsURLHavingQueryParams
-
-+ (id)isURLHavingQueryParams:(id<HCMatcher>)aValueMatcher
 {
-    return [[self alloc] initWithValue:aValueMatcher];
+    id<HCMatcher> valueMatcher;
 }
 
-- (id)initWithValue:(id<HCMatcher>)aValueMatcher
++ (instancetype)isURLHavingQueryParams:(id<HCMatcher>)aValueMatcher
+{
+    return [[FBIsURLHavingQueryParams alloc] initWithValue:aValueMatcher];
+}
+
+- (instancetype)initWithValue:(id<HCMatcher>)aValueMatcher
 {
     self = [super init];
     if (self != nil)

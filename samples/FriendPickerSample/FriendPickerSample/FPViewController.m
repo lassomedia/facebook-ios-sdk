@@ -33,9 +33,6 @@
 
 @implementation FPViewController
 
-@synthesize selectedFriendsView = _friendResultText;
-@synthesize friendPickerController = _friendPickerController;
-
 #pragma mark View lifecycle
 
 - (void)viewDidLoad {
@@ -56,7 +53,7 @@
     // if the session is open, then load the data for our view controller
     if (!FBSession.activeSession.isOpen) {
         // if the session is closed, then we open it here, and establish a handler for state changes
-        [FBSession openActiveSessionWithReadPermissions:nil
+        [FBSession openActiveSessionWithReadPermissions:@[@"public_profile", @"user_friends"]
                                            allowLoginUI:YES
                                       completionHandler:^(FBSession *session,
                                                              FBSessionState state,
@@ -110,7 +107,7 @@
 - (void)fillTextBoxAndDismiss:(NSString *)text {
     self.selectedFriendsView.text = text;
 
-    [self dismissModalViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:NULL];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientation

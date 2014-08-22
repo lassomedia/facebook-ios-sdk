@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
-#import "FBTestSession.h"
+#import <XCTest/XCTest.h>
+
 #import "FBRequestConnection.h"
+#import "FBTestSession.h"
 
 // The following #defines are designed as a convenience during development
 // to disable certain categories of tests. They should never be left on
@@ -39,42 +40,42 @@
 // Base class for unit-tests that use test users; ensures that all test users
 // created by a unit-test are deleted (by invalidating their session) during
 // tear-down.
-@interface FBIntegrationTests : SenTestCase
+@interface FBIntegrationTests : XCTestCase
 
 // For many test case scenarios, we just need a single session with a set of permissions
 // that can be shared and used by each individual test. For the simple case, this is that
 // session.
 @property (readonly, retain) FBTestSession *defaultTestSession;
 
-- (FBRequestHandler)handlerExpectingSuccessSignaling:(FBTestBlocker*)blocker;
-- (FBRequestHandler)handlerExpectingFailureSignaling:(FBTestBlocker*)blocker; 
+- (FBRequestHandler)handlerExpectingSuccessSignaling:(FBTestBlocker *)blocker;
+- (FBRequestHandler)handlerExpectingFailureSignaling:(FBTestBlocker *)blocker;
 
-- (FBTestSession *)getSessionWithSharedUserWithPermissions:(NSArray*)permissions;
-- (FBTestSession *)getSessionWithSharedUserWithPermissions:(NSArray*)permissions 
-                                             uniqueUserTag:(NSString*)uniqueUserTag;
+- (FBTestSession *)getSessionWithSharedUserWithPermissions:(NSArray *)permissions;
+- (FBTestSession *)getSessionWithSharedUserWithPermissions:(NSArray *)permissions
+                                             uniqueUserTag:(NSString *)uniqueUserTag;
 
 - (FBTestSession *)loginSession:(FBTestSession *)session;
-- (void)makeTestUserInSession:(FBTestSession*)session1 friendsWithTestUserInSession:(FBTestSession*)session2;
+- (void)makeTestUserInSession:(FBTestSession *)session1 friendsWithTestUserInSession:(FBTestSession *)session2;
 
-- (void)validateGraphObject:(id<FBGraphObject>)graphObject 
-              hasProperties:(NSArray*)propertyNames;
-- (void)validateGraphObjectWithId:(NSString*)idString 
-                    hasProperties:(NSArray*)propertyNames 
-                      withSession:(FBSession*)session
-                          blocker:(FBTestBlocker*)blocker;
-- (void)postAndValidateWithSession:(FBSession*)session
-                         graphPath:(NSString*)graphPath
+- (void)validateGraphObject:(id<FBGraphObject>)graphObject
+              hasProperties:(NSArray *)propertyNames;
+- (void)validateGraphObjectWithId:(NSString *)idString
+                    hasProperties:(NSArray *)propertyNames
+                      withSession:(FBSession *)session
+                          blocker:(FBTestBlocker *)blocker;
+- (void)postAndValidateWithSession:(FBSession *)session
+                         graphPath:(NSString *)graphPath
                        graphObject:(id)graphObject
-                     hasProperties:(NSArray*)propertyNames;
-- (id)batchedPostAndGetWithSession:(FBSession*)session 
-                         graphPath:(NSString*)graphPath 
+                     hasProperties:(NSArray *)propertyNames;
+- (id)batchedPostAndGetWithSession:(FBSession *)session
+                         graphPath:(NSString *)graphPath
                        graphObject:(id)graphObject;
 - (UIImage *)createSquareTestImage:(int)size;
 
 // Subclasses can define this to get defaultTestSessions with specific permissions.
 // The set of permissions should be static, as no guarantee is made how many times this will be called.
 // The default is nil.
-- (NSArray*)permissionsForDefaultTestSession;
+- (NSArray *)permissionsForDefaultTestSession;
 - (void)logRequestsAndConnections;
 
 @end

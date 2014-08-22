@@ -17,12 +17,9 @@
 #import <OCHamcrestIOS/HCBaseMatcher.h>
 
 @interface FBIsURLHavingQueryParams : HCBaseMatcher
-{
-    id<HCMatcher> valueMatcher;
-}
 
-+ (id)isURLHavingQueryParams:(id<HCMatcher>)aValueMatcher;
-- (id)initWithValue:(id<HCMatcher>)aValueMatcher;
++ (instancetype)isURLHavingQueryParams:(id<HCMatcher>)aValueMatcher;
+- (instancetype)initWithValue:(id<HCMatcher>)aValueMatcher;
 
 @end
 

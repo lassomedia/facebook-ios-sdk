@@ -14,15 +14,26 @@
  * limitations under the License.
  */
 
+#import <objc/runtime.h>
+
 #import <OCMock/OCMock.h>
-#import "FBAppEventsIntegrationTests.h"
-#import "Facebook.h"
+
 #import "FBAppEvents+Internal.h"
+#import "FBIntegrationTests.h"
+#import "FBSettings+Internal.h"
 #import "FBTestBlocker.h"
 #import "FBUtility.h"
-#import <objc/objc-runtime.h>
+#import "Facebook.h"
 
-@interface FBAppEventsIntegrationTests() {
+static int publishInstallCount = 0;
+static NSString *loggedEvent = nil;
+static NSDictionary *loggedParameter = nil;
+
+@interface FBAppEventsIntegrationTests : FBIntegrationTests
+@end
+
+@implementation FBAppEventsIntegrationTests
+{
     id _mockFBUtility;
     Method _originalPublishInstall;
     Method _swizzledPublishInstall;
@@ -30,12 +41,6 @@
     Method _originalLogEvent;
     Method _swizzledLogEvent;
 }
-@end
-
-static int publishInstallCount = 0;
-static NSString *loggedEvent = nil;
-
-@implementation FBAppEventsIntegrationTests
 
 - (void)setUp {
     [super setUp];
@@ -55,13 +60,15 @@ static NSString *loggedEvent = nil;
   publishInstallCount++;
 }
 
-+ (void)logEvent:(NSString *)eventName {
-  [loggedEvent release];
-  loggedEvent = [eventName retain];
++ (void)logEvent:(NSString *)eventName parameters:(NSDictionary *)parameters {
+    [loggedEvent release];
+    loggedEvent = [eventName retain];
+    [loggedParameter release];
+    loggedParameter = [[NSDictionary alloc] initWithDictionary:parameters copyItems:YES];
 }
 
 // Ensure session is not closed by a bogus app event log.
--(void) testSessionNotClosed {
+- (void)testSessionNotClosed {
     // *** COPY-PASTA README *** read this if you are copying tests for FBAppEvents!
     // Configure OCMock of FBAppEvents to expect handleActivitiesPostCompletion: instead of instanceFlush: because
     // 1. [OCMArg any] does not work for primitives
@@ -83,14 +90,16 @@ static NSString *loggedEvent = nil;
                                                                   permissions:nil
                                                                expirationDate:nil
                                                                     loginType:FBSessionLoginTypeFacebookApplication
-                                                                  refreshDate:nil];
+                                                                  refreshDate:nil
+                                                       permissionsRefreshDate:nil
+                                                                        appID:@"appid"];
     FBSession *session = [[[FBSession alloc] initWithAppID:@"appid"
                                               permissions:nil
                                           urlSchemeSuffix:nil
                                        tokenCacheStrategy:[FBSessionTokenCachingStrategy nullCacheInstance]] autorelease];
     [session openFromAccessTokenData:accessToken completionHandler:nil];
     
-    STAssertTrue(session.isOpen, @"Unable to verify test, session should be open");
+    XCTAssertTrue(session.isOpen, @"Unable to verify test, session should be open");
     
     [FBAppEvents logEvent:@"some_event" valueToSum:nil parameters:nil session:session];
     [FBAppEvents flush];
@@ -100,36 +109,39 @@ static NSString *loggedEvent = nil;
     [appEventsSingletonMock stopMocking];
 }
 
--(void) testUpdateParametersWithEventUsageLimitsAndBundleInfo {
+- (void)testUpdateParametersWithEventUsageLimitsAndBundleInfo {
     NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
   
     // default should set 1 for the app setting.
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults removeObjectForKey:@"com.facebook.sdk:FBAppEventsLimitEventUsage"];
-    [FBUtility updateParametersWithEventUsageLimitsAndBundleInfo:parameters];
-    STAssertTrue([parameters[@"application_tracking_enabled"] isEqualToString:@"1"], @"app tracking should default to 1");
+    [FBUtility updateParametersWithEventUsageLimitsAndBundleInfo:parameters
+                                 accessAdvertisingTrackingStatus:YES];
+    XCTAssertTrue([parameters[@"application_tracking_enabled"] isEqualToString:@"1"], @"app tracking should default to 1");
   
     // when limited, app tracking is 0.
     [parameters removeAllObjects];
     FBSettings.limitEventAndDataUsage = YES;
-    [FBUtility updateParametersWithEventUsageLimitsAndBundleInfo:parameters];
-    STAssertTrue([parameters[@"application_tracking_enabled"] isEqualToString:@"0"], @"app tracking should be 0 when event usage is limited");
+    [FBUtility updateParametersWithEventUsageLimitsAndBundleInfo:parameters
+                                 accessAdvertisingTrackingStatus:YES];
+    XCTAssertTrue([parameters[@"application_tracking_enabled"] isEqualToString:@"0"], @"app tracking should be 0 when event usage is limited");
   
     // when explicitly unlimited, app tracking is 1.
     [parameters removeAllObjects];
     FBSettings.limitEventAndDataUsage = NO;
-    [FBUtility updateParametersWithEventUsageLimitsAndBundleInfo:parameters];
-    STAssertTrue([parameters[@"application_tracking_enabled"] isEqualToString:@"1"], @"app tracking should be 1 when event usage is explicitly unlimited");
+    [FBUtility updateParametersWithEventUsageLimitsAndBundleInfo:parameters
+                                 accessAdvertisingTrackingStatus:YES];
+    XCTAssertTrue([parameters[@"application_tracking_enabled"] isEqualToString:@"1"], @"app tracking should be 1 when event usage is explicitly unlimited");
 }
 
--(void) testActivateApp {
+- (void)testActivateApp {
     // swizzle out the underlying calls.
     _originalPublishInstall = class_getClassMethod([FBSettings class], @selector(publishInstall:));
     _swizzledPublishInstall = class_getClassMethod([self class], @selector(publishInstallCounter:));
     method_exchangeImplementations(_originalPublishInstall, _swizzledPublishInstall);
 
-    _originalLogEvent = class_getClassMethod([FBAppEvents class], @selector(logEvent:));
-    _swizzledLogEvent = class_getClassMethod([self class], @selector(logEvent:));
+    _originalLogEvent = class_getClassMethod([FBAppEvents class], @selector(logEvent:parameters:));
+    _swizzledLogEvent = class_getClassMethod([self class], @selector(logEvent:parameters:));
     method_exchangeImplementations(_originalLogEvent, _swizzledLogEvent);
   
     publishInstallCount = 0;
@@ -137,11 +149,13 @@ static NSString *loggedEvent = nil;
   
     [FBSettings setDefaultAppID:@"appid"];
     [FBAppEvents activateApp];
-    STAssertTrue(publishInstallCount == 1, @"publishInstall was not triggered by activateApp");
-    STAssertTrue([@"fb_mobile_activate_app" isEqualToString:loggedEvent], @"activate app event not logged by activateApp call!");
-  
+    XCTAssertTrue(publishInstallCount == 1, @"publishInstall was not triggered by activateApp");
+    XCTAssertTrue([@"fb_mobile_activate_app" isEqualToString:loggedEvent], @"activate app event not logged by activateApp call!");
+    XCTAssertNotNil(loggedParameter[@"fb_mobile_launch_source"], @"activate app event not logged with source");
     [loggedEvent release];
     loggedEvent = nil;
+    [loggedParameter release];
+    loggedParameter = nil;
   
     method_exchangeImplementations(_swizzledPublishInstall, _originalPublishInstall);
     _originalPublishInstall = nil;

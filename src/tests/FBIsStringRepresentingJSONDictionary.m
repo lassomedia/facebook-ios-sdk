@@ -20,13 +20,16 @@
 #import <OCHamcrestIOS/HCWrapInMatcher.h>
 
 @implementation FBIsStringRepresentingJSONDictionary
-
-+ (id)isStringRepresentingJSONDictionary:(id<HCMatcher>)aValueMatcher
 {
-    return [[self alloc] initWithValue:aValueMatcher];
+    id<HCMatcher> valueMatcher;
 }
 
-- (id)initWithValue:(id<HCMatcher>)aValueMatcher
++ (instancetype)isStringRepresentingJSONDictionary:(id<HCMatcher>)aValueMatcher
+{
+    return [[FBIsStringRepresentingJSONDictionary alloc] initWithValue:aValueMatcher];
+}
+
+- (instancetype)initWithValue:(id<HCMatcher>)aValueMatcher
 {
     self = [super init];
     if (self != nil)

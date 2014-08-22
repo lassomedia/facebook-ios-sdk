@@ -35,18 +35,18 @@
 
 @implementation SUUsingViewController
 
-@synthesize nameLabel;
-@synthesize birthdayLabel;
-@synthesize picView;
-@synthesize pendingRequest = _pendingRequest;
-
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         self.title = NSLocalizedString(@"Using", @"Using");
         self.tabBarItem.image = [UIImage imageNamed:@"first"];
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)updateControls {
@@ -82,7 +82,7 @@
             }
 
             self.nameLabel.text = [NSString stringWithFormat:@"Hello, %@!", user.first_name];
-            self.picView.profileID = user.id;
+            self.picView.profileID = user.objectID;
             if (user.birthday.length > 0) {
                 self.birthdayLabel.text = [NSString stringWithFormat:@"Your birthday is: %@", user.birthday];
             } else {
